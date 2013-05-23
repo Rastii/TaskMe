@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<link rel="stylesheet" href="../static/css/base.css">
+	<script src="../static/js/jquery-1.9.0.js"></script>
+	{% block head %}{% endblock %}
+	{% if title %} 
+		<title>{{ title }}</title>
+	{% else %}
+		<title>Task Me</title>
+	{% endif %}
+</head>
+<body>
+	<header id="main-header">
+		<span>Task Me</span>
+	</header>
+	<div id="main-container">
+		{% block body %}
+		{% endblock %}
+	</div>
+</body>

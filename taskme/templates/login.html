@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block head %}
+{% endblock %}
+{% block body %}
+
+<div id="body-container">
+    <div id="message-field">
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li>{{ message }} </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    </div>
+    <div id="form-container">
+        <header>
+            <span>Login</span>
+        </header>
+        <form method="POST" action="/login">
+                {{ form.csrf_token }}
+            <section class="form-entry">
+                {{ form.login.label }}
+                {{ form.login }}
+                {{ form.login.errors }}
+            </section>
+            <section class="form-entry">
+                {{ form.password.label }}
+                {{ form.password }}
+                {{ form.password.errors }}
+            </section>
+            <section class="form-entry">
+                <input type="Submit" name="Login" value="Login">
+            </section>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
