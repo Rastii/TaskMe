@@ -3,7 +3,9 @@ from taskme import app
 
 if len(sys.argv) > 1:
     if sys.argv[1] == 'run':
-        app.run(debug=True, host='localhost', port=5000)
+        #use this if you wanto view your page outside of localhost
+        app.run(debug=True, host='0.0.0.0', port=5000)
+        #app.run(debug=True, host='localhost', port=5000)
         sys.exit()
 
     elif sys.argv[1] == 'setup':
