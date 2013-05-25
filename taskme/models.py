@@ -1,11 +1,14 @@
 import datetime as dt
 from sqlalchemy import Table, Column, ForeignKey, Integer, String,\
-Boolean
+Boolean, Text, DateTime
 from sqlalchemy.orm import relationship, backref, deferred
-from sqlalchemy.dialects.sqlite import DATETIME
+#from sqlalchemy.dialects.sqlite import DATETIME
 from taskme.database import Base, db_session
 from sqlalchemy.orm.collections import attribute_mapped_collection
+import datetime
 
+def now():
+    return datetime.datetime.now()
 
 group_members = Table('group_members', Base.metadata,
     Column('user_id', Integer, ForeignKey('users.id')),
@@ -22,6 +25,10 @@ class User(Base):
     enabled     = deferred(Column(Boolean))
     groups      = relationship("Group", secondary=group_members,
                     backref='users')
+    assigned_tasks  = relationship("Task", 
+                        primaryjoin="User.id==Task.assigned_by")
+    created_tasks   = relationship("Task",
+                        primaryjoin="User.id==Task.assigned_to")
 
     def __init__(self, fname, lname, login, email, password, role=None):
         self.name       = fname + ' ' + lname
@@ -36,6 +43,7 @@ class User(Base):
     def __repr__(self):
         return '< User id: %d, name: %s, login: %s, email: %s >' %\
             (self.id, self.name, self.login, self.email)
+
 
     def enable(self):
         self.enabled = True
@@ -78,6 +86,7 @@ class Group(Base):
     id          = Column(Integer, primary_key=True)
     name        = Column(String(128), unique=True)
     password    = deferred(Column(String(60)))
+    tasks       = relationship("Task", backref="groups")
 
     def __init__(self, name, password):
         self.name = name
@@ -86,3 +95,58 @@ class Group(Base):
     def __repr__(self):
         return '< Group id: %s, Group name: %s >' %\
             (self.id, self.name)
+
+class Task(Base):
+    __tablename__ = 'tasks'
+    id              = Column(Integer, primary_key=True)
+    name            = Column(String(128))
+    description     = Column(Text())
+    category        = Column(Integer, ForeignKey('categories.id'))
+    assigned_by     = Column(Integer, ForeignKey('users.id'))
+    assigned_to     = Column(Integer, ForeignKey('users.id'))
+    assigned_date   = Column(DateTime, default=now())
+    group           = Column(Integer, ForeignKey('groups.id'))
+    updates         = relationship("Update", backref="tasks")
+    completed       = Column(Boolean)
+
+    def __init__(self, name, description, category, assigned_by, 
+                    assigned_to, group):
+        self.name = name
+        self.description = description
+        self.category = category
+        self.assigned_by = assigned_by
+        self.assigned_to = assigned_to
+        self.completed = False
+        self.group = group
+
+    def __repr__(self):
+        return '< Task id: %s, Task name: %s, Task category: %s, \
+                assigned_to: %s, assigned_by: %s, date: %s, group: %s, \
+                completed: %s >' %\
+                (self.id, self.name, self.category, self.assigned_to, 
+                    self.assigned_by, self.assigned_date, self.group,
+                    self.complted)
+
+class Category(Base):
+    __tablename__ = 'categories'
+    id              = Column(Integer, primary_key=True)
+    name            = Column(String(128), unique=True)
+    tasks           = relationship("Task", backref="categories")
+
+    def __init__(self, name):
+        self.name = name
+
+    def __repr__(self):
+        print '< Category id: %s, Category name: %s >' % (self.id, self.name)
+
+class Update(Base):
+    __tablename__ = 'task_updates'
+    id              = Column(Integer, primary_key=True)
+    description     = Column(Text())
+    task            = Column(Integer, ForeignKey("tasks.id"))
+    update_time     = Column(DateTime, default=now())
+
+    def __init__(self, description, task=None):
+        self.description = description
+        if task:
+            self.task = task

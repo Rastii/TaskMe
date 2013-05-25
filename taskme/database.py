@@ -46,5 +46,29 @@ def setup_db():
     dennis.groups.append(hackers)
     luke.groups.append(hackers)
     db_session.commit()
+
+    """Categories
+    """
+    bugs = Category('Bugs')
+    db_session.add(bugs)
+
+    ui_dev = Category('UI Development')
+    db_session.add(ui_dev)
+
+    backend_dev = Category('Backend Development')
+    db_session.add(backend_dev)
+    db_session.commit()
+
+
+    """Tasks
+    """
+    task1 = Task('UI Work', 'Start working on the UI you lazy SOB',
+            ui_dev.id, luke.id, dennis.id, hackers.id)
+
+    task2 = Task('Backend Work', 'Finish up the backend you lazy SOB',
+            backend_dev.id, dennis.id, luke.id, hackers.id)
+    db_session.add(task1)
+    db_session.add(task2)
+    db_session.commit()
 #query to take note of 
 #db_session.query(User).filter(User.login == 'rastii').filter(User.groups.any(Group.name == 'hackers')).count()
